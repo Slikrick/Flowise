@@ -471,14 +471,14 @@ const jsonEscapeCharacters = [
     { escape: '\\', value: 'FLOWISE_BACKSLASH' }
 ]
 
-function handleEscapesJSONParse(input: string, reverse: Boolean): string {
+function handleEscapesJSONParse(input: string, reverse: boolean): string {
     for (const element of jsonEscapeCharacters) {
         input = reverse ? input.replaceAll(element.value, element.escape) : input.replaceAll(element.escape, element.value)
     }
     return input
 }
 
-function iterateEscapesJSONParse(input: any, reverse: Boolean): any {
+function iterateEscapesJSONParse(input: any, reverse: boolean): any {
     for (const element in input) {
         const type = typeof input[element]
         if (type === 'string') input[element] = handleEscapesJSONParse(input[element], reverse)
@@ -487,7 +487,7 @@ function iterateEscapesJSONParse(input: any, reverse: Boolean): any {
     return input
 }
 
-export function handleEscapeCharacters(input: any, reverse: Boolean): any {
+export function handleEscapeCharacters(input: any, reverse: boolean): any {
     const type = typeof input
     if (type === 'string') return handleEscapesJSONParse(input, reverse)
     else if (type === 'object') return iterateEscapesJSONParse(input, reverse)
@@ -560,14 +560,38 @@ export const convertSchemaToZod = (schema: string | object): ICommonObject => {
         const zodObj: ICommonObject = {}
         for (const sch of parsedSchema) {
             if (sch.type === 'string') {
-                if (sch.required) z.string({ required_error: `${sch.property} required` }).describe(sch.description)
-                zodObj[sch.property] = z.string().describe(sch.description)
+                if (sch.required) {
+                    zodObj[sch.property] = z
+                        .string({ required_error: `${sch.property} required` })
+                        .describe(sch.description)
+                } else {
+                    zodObj[sch.property] = z
+                        .string()
+                        .describe(sch.description)
+                        .optional()
+                }
             } else if (sch.type === 'number') {
-                if (sch.required) z.number({ required_error: `${sch.property} required` }).describe(sch.description)
-                zodObj[sch.property] = z.number().describe(sch.description)
+                if (sch.required) {
+                    zodObj[sch.property] = z
+                        .number({ required_error: `${sch.property} required` })
+                        .describe(sch.description)
+                } else {
+                    zodObj[sch.property] = z
+                        .number()
+                        .describe(sch.description)
+                        .optional()
+                }
             } else if (sch.type === 'boolean') {
-                if (sch.required) z.boolean({ required_error: `${sch.property} required` }).describe(sch.description)
-                zodObj[sch.property] = z.boolean().describe(sch.description)
+                if (sch.required) {
+                    zodObj[sch.property] = z
+                        .boolean({ required_error: `${sch.property} required` })
+                        .describe(sch.description)
+                } else {
+                    zodObj[sch.property] = z
+                        .boolean()
+                        .describe(sch.description)
+                        .optional()
+                }
             }
         }
         return zodObj
